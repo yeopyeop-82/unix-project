@@ -92,7 +92,7 @@ void printcard(int p, int turns)
     player[p].score += 10;
     break;
   default:
-    printf("|   %2d   |\n", player[p].card_player[turns].number);
+    printf("|  %2d   |\n", player[p].card_player[turns].number);
     player[p].score += player[p].card_player[turns].number;
     break;
   }
