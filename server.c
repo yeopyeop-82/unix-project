@@ -66,22 +66,27 @@ int main() {
 
     // 클라이언트로부터 메시지 수신
     memset(buffer, 0, sizeof(buffer));
-    n = read(clie_sock, buffer, sizeof(buffer));
-    if (n < 0) {
-        perror("socket");
-        exit(1);
-    }
-    printf("Message from Client: %s\n", buffer);
+    for (int i = 0; i < num_clients; i++) {
+        n = read(clie_sock[i], buffer, sizeof(buffer));
+        if (n < 0) {
+            perror("read");
+            exit(1);
+        }
+        printf("Message from Client %d: %s\n", i + 1, buffer);
 
-    // 클라이언트로 메시지 전송
-    n = write(clie_sock, "메시지 받음!", strlen("메시지 받음!"));
-    if (n < 0) {
-        perror("socket");
-        exit(1);
+        // 클라이언트로 메시지 전송
+        n = write(clie_sock[i], "메시지 받음!", strlen("메시지 받음!"));
+        if (n < 0) {
+            perror("write");
+            exit(1);
+        }
     }
 
-    // 소켓 닫기
-    close(clie_sock);
+    // 연결된 클라이언트 소켓을 닫는 반복문
+    for (int i = 0; i < num_clients; i++) {
+        close(clie_sock[i]);
+    }
+    // 서버 소켓 닫음
     close(serv_sock);
 
     return 0;
