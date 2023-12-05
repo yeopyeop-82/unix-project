@@ -73,44 +73,44 @@ void printcard(int p, int turns)
 {
   int ace_score=0;
 
-  printf("-------\n");
+  printf("┌───────┐\n");
 
   switch(player[p].card_player[turns].shape)
   {
   case spade:
-    printf("|%s    |\n", SPADE);
+    printf("|%s      |\n", SPADE);
     break;
   case club:
-    printf("|%s    |\n", CLUB);
+    printf("|%s      |\n", CLUB);
     break;
   case dia:
-    printf("|%s    |\n", DIA);
-    break;
+    printf("|%s      |\n", DIA);
+    break; 
   case heart:
-    printf("|%s    |\n", HEART);
+    printf("|%s      |\n", HEART);
     break;
   }
 
   switch(player[p].card_player[turns].number)
   {
   case ace:
-    printf("|  A  |\n");
+    printf("|   A   |\n");
     ace_score = -1;
     break;
   case jack:
-    printf("|  J  |\n");
+    printf("|   J   |\n");
     player[p].score += 10;
     break;
   case queen:
-    printf("|  Q  |\n");
+    printf("|   Q   |\n");
     player[p].score += 10;
     break;
   case king:
-    printf("|  K  |\n");
+    printf("|   K   |\n");
     player[p].score += 10;
     break;
   default:
-    printf("| %2d  |\n", player[p].card_player[turns].number);
+    printf("|   %2d   |\n", player[p].card_player[turns].number);
     player[p].score += player[p].card_player[turns].number;
     break;
   }
@@ -118,20 +118,20 @@ void printcard(int p, int turns)
   switch(player[p].card_player[turns].shape)
   {
   case spade:
-    printf("|    %s|\n", SPADE);
+    printf("|      %s|\n", SPADE);
     break;
   case club:
-    printf("|    %s|\n", CLUB);
+    printf("|      %s|\n", CLUB);
     break;
   case dia:
-    printf("|    %s|\n", DIA);
+    printf("|      %s|\n", DIA);
     break;
   case heart:
-    printf("|    %s|\n", HEART);
+    printf("|      %s|\n", HEART);
     break;
   }
 
-  printf("-------\n");
+  printf("└───────┘\n");
 
 // ace 계산 묻기
   if(ace_score == -1)
@@ -151,12 +151,12 @@ int betting(struct Player player)
 {
   int bet;
 
-  printf("돈을 걸어봅시다! %d 중 얼마를 배팅하시겠습니까? ", player.cash);
+  printf("보유 금액 :%d \n얼마를 배팅하시겠습니까? ", player.cash);
   scanf("%d", &bet);
 
   if(bet > player.cash)
   {
-    printf("이런이런... 돈이 부족하군요. 조금만 아껴야겠어요. 다시 입력 : ");
+    printf("돈이 부족합니다.\n다시 입력 : ");
     scanf("%d", &bet);
     return bet;
   }
@@ -350,7 +350,7 @@ void play()
     }
   }
 
-  printf("게임이 종료됩니다... 뇽안:)");
+  printf("게임이 종료됩니다.)");
 }
 
 void reset()
@@ -365,7 +365,7 @@ void reset()
 void start()
 {
   char choice;
-  printf("블랙잭 게임에 오신 것을 환영합니다! 지금 바로 시작하시겠습니까? [y/n] ");
+  printf("블랙잭 게임에 오신 것을 환영합니다!\n시작하시겠습니까? [y/n] ");
   scanf("%c", &choice);
 
   while(choice!='Y' && choice!='y' && choice!='N' && choice!='n')
@@ -381,7 +381,7 @@ void start()
   }
   else if(choice=='N' || choice=='n')
   {
-    printf("앗, 게임을 종료합니다. ㅂㅇㅂㅇ~\n");
+    printf("게임을 종료합니다.\n");
   }
   return;
 }
