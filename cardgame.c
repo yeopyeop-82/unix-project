@@ -1,4 +1,4 @@
-#include "func.c"
+#include "cards.h"
 
 int main(void)
 {
