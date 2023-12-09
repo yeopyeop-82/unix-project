@@ -1,6 +1,8 @@
 #ifndef CARDS_H
 #define CARDS_H
 
+#define MAX_CLI 3
+
 enum shape { spade, club, dia, heart };
 enum num { ace = 1, jack = 11, queen = 12, king = 13 };
 
@@ -10,6 +12,7 @@ struct Card {
 };
 
 struct Player {
+    int idx;
     int cash;
     int score;
     struct Card card_player[21];
@@ -22,8 +25,8 @@ void printcard(int p, int turns);
 int betting(struct Player player);
 void stayorhit(int p, int turns);
 void dealer(int turns);
-void play();
-void reset();
+void play(struct Player players[MAX_CLI]);
+void reset(struct Player players[MAX_CLI]);
 void start();
 
 #endif /* CARDS_H */

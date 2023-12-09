@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <unistd.h>
 #include <string.h>
 
+#define MAX_CLI 3
 #define AI 17
 #define SPADE "♠"
 #define CLUB "♣"
@@ -15,6 +17,8 @@ int next;
 struct Player player[3];
 struct Card card_all[52];
 // 나머지 함수들 구현
+
+
 // 카드 섞는 함수
 void shuffle()
 {
@@ -145,7 +149,7 @@ int betting(struct Player player)
   else return bet;
 }
 
-// 게임을 시작
+// HIT STAY 결정
 void stayorhit(int p, int turns)
 {
   char answer;
@@ -168,7 +172,7 @@ void stayorhit(int p, int turns)
     }
     else
     {
-      printf("HIT이면 h, STAY면 s라니까요.\n다시,");
+      printf("HIT이면 'h', STAY면 's'를 입력해주세요.");
     }
   }
 
@@ -204,11 +208,11 @@ void dealer(int turns)
 }
 
 // 게임 진행
-void play()
+void play(struct Player players[MAX_CLI])
 {
-  int turns = 0; int goon = 1; int push = 0; int push_flag = 0; int bet_total = 0;
+  int turns = 0; int push = 0; int push_flag = 0; int bet_total = 0;
 
-  while(goon)
+  while(1)
   {
     int winner, winnerscore=-1;
     int bet[3]; bet[0] = 10;
@@ -216,27 +220,16 @@ void play()
 
     if (push == 0) bet_total = 0;
 
-    // 두명 다 확인
-    if(player[1].cash<=0)
-    {
-      printf("!!! PLAYER1 파산하셨습니다. 100 다시 충전\n\n");
-      player[1].cash += 100;
+    for(int i = 0; i<3; i++) {
+      if(players[i].cash <= 0) {
+        printf("Player%d 파산. 100 Coin 다시 충전.\n");
+      }
+      players[i].cash = 100;
     }
-    else if(player[2].cash<=0)
-    {
-      printf("!!! PLAYER2 파산하셨습니다.\n\n");
-      player[2].cash += 100;
+    
+    for(int i = 0; i<3; i++) {
+      player[i].score = 0;
     }
-    else if (player[1].cash<=0 && player[2].cash<=0)
-    {
-      printf("!!! PLAYER1 파산하셨습니다.\n\n");
-      printf("!!! PLAYER2 파산하셨습니다.\n\n");
-      break;
-    }
-
-    player[0].score = 0;
-    player[1].score = 0;
-    player[2].score = 0;
 
     player[0].card_player[turns] = deal(next++);
     printcard(0, turns);
@@ -335,12 +328,16 @@ void play()
   printf("게임이 종료됩니다.)");
 }
 
-void reset()
-{
-  player[0].score = 0; player[1].score = 0; player[2].score = 0;
-  player[1].cash = 500; player[2].cash = 500;
-
-  filldeck(); shuffle(); next = 0;
+void reset(struct Player players[MAX_CLI]) {
+    // 플레이어 데이터 초기화
+    for (int i = 0; i < MAX_CLI; ++i) {
+        players[i].idx = 0;
+        players[i].score = 0; // 플레이어의 점수 초기화
+        players[i].cash = 500; // 플레이어의 현금 초기화
+    }
+   filldeck(); // 덱을 채우는 함수 호출
+   shuffle(); // 카드를 섞는 함수 호출
+   next = 0; // 다음 카드 인덱스 초기화
 }
 
 //시작
@@ -357,8 +354,7 @@ void start() {
 
   if(choice=='Y' || choice=='y')
   {
-    reset();
-    play();
+    //reset();//가진 돈 초기화
   }
   else if(choice=='N' || choice=='n')
   {
