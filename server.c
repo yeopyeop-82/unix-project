@@ -1,12 +1,5 @@
 #include "func.c"
 
-#define PORT 12345
-
-void error(const char *msg) {
-    perror(msg);
-    exit(1);
-}
-
 int main() {
     int serv_sock, clie_sock[MAX_CLI];
     socklen_t client_len;
@@ -46,13 +39,13 @@ int main() {
     // 게임 루프
     while (1) {
         // 클라이언트 연결 수락 및 플레이어 데이터 초기화
-        if (num_clients < MAX_CLI) {
+        while (num_clients < MAX_CLI) {
             clie_sock[num_clients] = accept(serv_sock, (struct sockaddr *)&client_addr, &client_len);
             // 플레이어 데이터 초기화
             struct Player newPlayer;
             reset(&newPlayer); // reset() 함수 호출로 플레이어 데이터 초기화
             players[num_clients] = newPlayer; // 초기화된 데이터를 서버의 플레이어 배열에 할당
-            newPlayer.idx += (idx);// 플레이어 번호 부여
+            newPlayer.idx = idx;// 플레이어 번호 부여
 
             //각 클라이언트에게 생성한 플레이어 구조체 전달
             n = write(clie_sock[num_clients], &newPlayer, sizeof(newPlayer));
@@ -60,6 +53,7 @@ int main() {
                 perror("write");
                 exit(1);
             }
+            printf("Player%d 접속.\n", idx);
             num_clients++; idx++;
         }
 

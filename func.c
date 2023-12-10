@@ -309,6 +309,12 @@ void play(struct Player players[MAX_CLI])
   printf("게임이 종료됩니다.)");
 }
 
+//에러 함수
+void error(const char *msg) {
+    perror(msg);
+    exit(1);
+}
+
 // 배팅하는 함수, 베팅 금액이 너무 클 경우 다시 입력 받음
 // int betting(struct Player player, int bet)
 // {

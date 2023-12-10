@@ -1,12 +1,5 @@
 #include "func.c"
 
-#define PORT 12345
-
-void error(const char *msg) {
-    perror(msg);
-    exit(0);
-}
-
 int main() {
     int clie_sock, n;
     struct sockaddr_in server_addr;

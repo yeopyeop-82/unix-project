@@ -12,6 +12,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+#define PORT 12345
 #define HIT 1
 #define STAY 0
 #define AI 17
