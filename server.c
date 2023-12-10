@@ -1,8 +1,6 @@
-// server.c
 #include "func.c"
 
 #define PORT 12345
-#define MAX_CLI 3 //최대 세 명의 클라이언트 허용
 
 void error(const char *msg) {
     perror(msg);

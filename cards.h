@@ -1,6 +1,24 @@
 #ifndef CARDS_H
 #define CARDS_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
+#define HIT 1
+#define STAY 0
+#define AI 17
+#define SPADE "♠"
+#define CLUB "♣"
+#define DIA "◆"
+#define HEART "♥"
 #define MAX_CLI 3
 
 enum shape { spade, club, dia, heart };

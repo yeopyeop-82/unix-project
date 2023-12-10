@@ -1,23 +1,4 @@
 #include "cards.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-
-#define HIT 1
-#define STAY 0
-#define MAX_CLI 3
-#define AI 17
-#define SPADE "♠"
-#define CLUB "♣"
-#define DIA "◆"
-#define HEART "♥"
 
 int next;
 struct Player player[3];

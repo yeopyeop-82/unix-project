@@ -1,4 +1,3 @@
-// client.c
 #include "func.c"
 
 #define PORT 12345
