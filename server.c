@@ -1,9 +1,5 @@
 // server.c
 #include "func.c"
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 
 #define PORT 12345
 #define MAX_CLI 3 //최대 세 명의 클라이언트 허용
@@ -20,7 +16,7 @@ int main() {
     int n, idx = 1, num_clients = 0;
     // 각 클라이언트에게 할당해줄 플레이어 구조체 선언
     struct Player players[MAX_CLI];
-    // 덱 생성
+    // 카드 덱 생성
     struct Card card_all[52];
 
     char buffer[256];
@@ -56,7 +52,7 @@ int main() {
             clie_sock[num_clients] = accept(serv_sock, (struct sockaddr *)&client_addr, &client_len);
             // 플레이어 데이터 초기화
             struct Player newPlayer;
-            reset(&newPlayer); // resetPlayers() 함수 호출로 플레이어 데이터 초기화
+            reset(&newPlayer); // reset() 함수 호출로 플레이어 데이터 초기화
             players[num_clients] = newPlayer; // 초기화된 데이터를 서버의 플레이어 배열에 할당
             newPlayer.idx += (idx);// 플레이어 번호 부여
 
@@ -66,9 +62,13 @@ int main() {
                 perror("write");
                 exit(1);
             }
-
             num_clients++; idx++;
         }
+
+        //플레이어 초기화 후 덱 생성
+        filldeck(); // 덱을 채우는 함수
+        shuffle(); // 카드를 섞는 함수
+        int next = 0; // 카드의 인덱스
 
         // 클라이언트의 행동 처리
         for (int i = 0; i < num_clients; i++) {
