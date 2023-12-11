@@ -15,7 +15,7 @@ void reset(struct Player players[MAX_CLI]) {
 }
 
 // 카드 섞는 함수, 서버
-void shuffle(struct Card card_all[52])
+void shuffle(struct Card card_all[])
 {
     srand(time(NULL));
     for (int i = 0; i < 52; i++)
@@ -28,14 +28,12 @@ void shuffle(struct Card card_all[52])
 }
 
 // 카드 채우는 함수, 서버
-void filldeck(struct Card card_all[52])
+void filldeck(struct Card card_all[])
 {
     int i = 0;
     // 4개의 모양과 13개의 숫자를 짝지어서 카드 만듦
-    for (int j = 0; j < 4; j++)
-    {
-        for (int k = 1; k < 14; k++)
-        {
+    for (int j = 0; j < 4; j++) {
+        for (int k = 1; k < 14; k++) {
             card_all[i].number = k;
             card_all[i].shape = j;
             i++;
@@ -156,7 +154,7 @@ int stayorhit(struct Player player, int turns)
 {
   char answer;
 
-  printf("\n##########TURN : PLAYER%d님##########\n\n", player.idx);
+  printf("\n+     PLAYER%d 님의 차례!     +\n\n", player.idx);
   while(1)
   {
     printf("HIT을 원하시면 h를, STAY를 원하시면 s를 입력하세요[h/s]: ");
@@ -164,6 +162,7 @@ int stayorhit(struct Player player, int turns)
 
     if (answer == 'h' || answer == 'H')
     {
+      turns += 1;
       return HIT;
     }
     else if (answer == 's' || answer == 'S')
@@ -178,12 +177,12 @@ int stayorhit(struct Player player, int turns)
 
   if(player.score>21)
   {
-    printf("21점을 넘었습니다. LOSS\n");
+    printf("21점 초과.\n패배하셨습니다.\n");
     player.score = 0;
   }
   else if (player.score==21)
   {
-    printf("21점입니다. WIN\n");
+    printf("21점입니다.\n승리하셨습니다.\n");
   }
 }
 

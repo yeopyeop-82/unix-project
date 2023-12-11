@@ -27,7 +27,7 @@ enum num { ace = 1, jack = 11, queen = 12, king = 13 };
 
 struct Card {
     int number;
-    char shape;
+    int shape;
 };
 
 struct Player {

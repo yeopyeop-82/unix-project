@@ -4,9 +4,11 @@ int main() {
     int serv_sock, clie_sock[MAX_CLI];
     socklen_t client_len;
     struct sockaddr_in server_addr, client_addr;
-    int n, idx = 1, num_clients = 0;
+    int n, idx = 1, num_clients = 0, clieturn=0;
     // 각 클라이언트에게 할당해줄 플레이어 구조체 선언
     struct Player players[MAX_CLI];
+    // 딜러 구조체 선언
+    struct Player dealer;
     // 카드 덱 생성
     struct Card card_all[52];
 
@@ -59,7 +61,7 @@ int main() {
         if (num_clients == MAX_CLI) {
             char *start_msg = "블랙잭 게임을 시작합니다!";
             for (int i = 0; i < num_clients; ++i) {
-                int n = write(clie_sock[i], start_msg, strlen(start_msg));
+                n = write(clie_sock[i], start_msg, strlen(start_msg));
                 if (n < 0) {
                     perror("write");
                     exit(1);
@@ -71,20 +73,37 @@ int main() {
         //플레이어 초기화 후 덱 생성
         filldeck(card_all); // 덱을 채우는 함수
         shuffle(card_all); // 카드를 섞는 함수
-        int next = 1; // 카드의 인덱스
+        int turn = 0; // 생성한 덱에서 뽑는 순서
 
         // 게임 진행
         while(1) {
-            struct Card c = card_all[next];
+            struct Card c = card_all[turn];
             for (int i = 0; i < MAX_CLI; ++i) {
                 // client_sockets[i]에 해당하는 클라이언트로 값을 보냄
-                int n = write(clie_sock[i], &c, sizeof(c));
+                n = write(clie_sock[i], &c, sizeof(c));
                 if (n < 0) {
                     perror("write");
                     exit(1);
                 }
-                next++; // 다음 카드
-                struct Card c = card_all[next];
+                turn++; // 다음 카드
+                struct Card c = card_all[turn];
+            }
+            //카드 배분이 끝난 후 클라이언트1부터 hitorstay진행하고 턴 반환
+            for(int i = 0; i < MAX_CLI; i++) {
+                //현재 턴을 첫번째 클라이언트에게 전송해주기
+                n = write(clie_sock[i], &turn, sizeof(turn));
+                if (n<0) {
+                    perror("write");
+                    exit(1);
+                }
+                //클라이언트가 턴을 받아 읽고 stayorhit() 진행후 턴을 다시 write()하면 서버에서 받아옴
+                n = read(clie_sock[i], &clieturn, sizeof(clieturn));
+                if (n < 0) {
+                    perror("read");
+                    exit(1);
+                }
+                //해당 클라이언트가 진행한 턴 수 더해주기
+                turn += clieturn;
             }
 
             // 클라이언트의 액션에 따라 플레이어 업데이트

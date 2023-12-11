@@ -1,7 +1,7 @@
 #include "func.c"
 
 int main() {
-    int clie_sock, n;
+    int clie_sock, n, turn;
     struct sockaddr_in server_addr;
     struct hostent *server;
 
@@ -49,38 +49,30 @@ int main() {
 
     while (1) {
         //서버로부터 카드 받기
-        int n = read(clie_sock, &playerInfo.card_player, sizeof(playerInfo.card_player));
+        n = read(clie_sock, &playerInfo.card_player, sizeof(playerInfo.card_player));
         if (n < 0) {
             perror("read");
             exit(1);
         }
+        //자신이 뽑은 카드 확인
         printcard(playerInfo);
-        // 사용자의 선택 입력
+        turn = 4;
         
-        fgets(buffer, sizeof(buffer), stdin);
-        int choice = atoi(buffer);
-
-        // 클라이언트가 0을 입력하여 게임 종료 요청 시
-        if (choice == 0) {
-            write(clie_sock, buffer, strlen(buffer)); // 서버에 0 전송
-            printf("게임을 종료합니다.\n");
-            break;
-        } else if (choice < 1 || choice > 3) {
-            printf("잘못된 입력입니다. 가위(1), 바위(2), 보(3) 중에서 선택하세요.\n");
-            continue; // 잘못된 입력일 경우 반복문 계속
-        }
-
-        // 사용자의 선택을 서버로 전송
-        sprintf(buffer, "%d", choice);
-        write(clie_sock, buffer, strlen(buffer));
-
-        // 서버로부터 결과 수신
-        memset(buffer, 0, sizeof(buffer));
-        n = read(clie_sock, buffer, sizeof(buffer));
+        //서버측에서 비동기적으로 1번부터 카드 배분하고, 한바퀴 돌거나 한쪽이 입력받을 때마다
+        //turn이 몇번째인지 전달해줘야함
+        //딜러측에서 한장 클라이언트 각 한장씩 뽑으면 turn은 4고, 
+        //여기서 클라이언트1이 HIT을 두번 하면 클라이언트2의 turn은 7임
+        n = read(clie_sock, &turn, sizeof(turn));
         if (n < 0) {
-            error("ERROR reading from socket");
+            perror("read");
+            exit(1);
         }
+        //stay or hit 결정
+        stayorhit(playerInfo, turn);
+        //진행한 턴 수 서버로 전달
+        n = write(clie_sock, &turn, sizeof(turn));
 
+    
         printf("결과: %s\n", buffer);
     break;
     }
