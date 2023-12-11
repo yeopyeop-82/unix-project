@@ -37,15 +37,4 @@ struct Player {
     struct Card card_player[21];
 };
 
-void shuffle();
-void filldeck();
-struct Card deal(int next);
-void printcard(int p, int turns);
-// int betting(struct Player player);
-int stayorhit(struct Player player, int turns);
-void dealer(int turns);
-void play(struct Player players[MAX_CLI]);
-void reset(struct Player players[MAX_CLI]);
-//void start();
-
 #endif /* CARDS_H */

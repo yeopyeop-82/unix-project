@@ -15,7 +15,7 @@ void reset(struct Player players[MAX_CLI]) {
 }
 
 // 카드 섞는 함수, 서버
-void shuffle()
+void shuffle(struct Card card_all[52])
 {
     srand(time(NULL));
     for (int i = 0; i < 52; i++)
@@ -24,11 +24,11 @@ void shuffle()
         struct Card temp = card_all[index];
         card_all[index] = card_all[i];
         card_all[i] = temp;
-    }
+    } 
 }
 
 // 카드 채우는 함수, 서버
-void filldeck()
+void filldeck(struct Card card_all[52])
 {
     int i = 0;
     // 4개의 모양과 13개의 숫자를 짝지어서 카드 만듦
@@ -71,14 +71,15 @@ int bet_players(struct Player players[MAX_CLI], int betsize[MAX_CLI]) {
 }
 
 // 사용자가 뽑은 카드를 문자열이 아닌 카드 모양으로 출력, 점수 계산
-// 클라이언트에서 사용해 출력할 생각, 서버로부터 turns를 받아 호출할 생각.
-void printcard(int p, int turns)
+// 플레이어 구조체만 넘겨주면 카드 정보를 읽어 카드 모양을 출력해줌.
+struct Player printcard(const struct Player player)
 {
   int ace_score=0;
+  struct Player p = player;
 
   printf("┌───────┐\n");
 
-  switch(player[p].card_player[turns].shape)
+  switch(player.card_player->shape)
   {
   case spade:
     printf("|%s      |\n", SPADE);
@@ -94,7 +95,7 @@ void printcard(int p, int turns)
     break;
   }
 
-  switch(player[p].card_player[turns].number)
+  switch(player.card_player->number)
   {
   case ace:
     printf("|   A   |\n");
@@ -102,23 +103,23 @@ void printcard(int p, int turns)
     break;
   case jack:
     printf("|   J   |\n");
-    player[p].score += 10;
+    p.score += 10;
     break;
   case queen:
     printf("|   Q   |\n");
-    player[p].score += 10;
+    p.score += 10;
     break;
   case king:
     printf("|   K   |\n");
-    player[p].score += 10;
+    p.score += 10;
     break;
   default:
-    printf("|  %2d   |\n", player[p].card_player[turns].number);
-    player[p].score += player[p].card_player[turns].number;
+    printf("|  %2d   |\n", player.card_player->number);
+    p.score += player.card_player->number;
     break;
   }
 
-  switch(player[p].card_player[turns].shape)
+  switch(player.card_player->shape)
   {
   case spade:
     printf("|      %s|\n", SPADE);
@@ -141,15 +142,16 @@ void printcard(int p, int turns)
   {
     printf("ACE가 나왔네요, [1/11]점으로 계산합니다: ");
     scanf("%d", &ace_score);
-    player[p].score += ace_score;
+    p.score += ace_score;
   }
 
-  printf("score : %d\n", player[p].score);
+  printf("score : %d\n", p.score);
 
-  return;
+  
+  return p;
 }
 
-// HIT STAY 결정, 플레이어 정보 인자로 받음, HIT은 1 리턴, STAY는 0 리턴, 클라이언트
+// HIT STAY 결정, 플레이어 정보, 카드 턴 인자로 받음, HIT은 1 리턴, STAY는 0 리턴, 클라이언트
 int stayorhit(struct Player player, int turns)
 {
   char answer;
@@ -195,7 +197,6 @@ void dealer(int turns)
     {
       turns++;
       player[0].card_player[turns] = deal(next++);
-      printcard(0, turns);
     }
     else
     {
@@ -203,6 +204,13 @@ void dealer(int turns)
     }
   }
   if(player[0].score>21) player[0].score = 0;
+}
+
+//플레이어 구조체 받아서 정보 출력해주는 함수, 클라이언트
+void printInfo(struct Player playerInfo) {
+  printf("플레이어 정보: Player%d\n", playerInfo.idx);
+  printf("점수: %d\n", playerInfo.score);
+  printf("보유금: %d\n", playerInfo.cash);
 }
 
 // 게임 진행
@@ -230,14 +238,12 @@ void play(struct Player players[MAX_CLI])
     }
 
     player[0].card_player[turns] = deal(next++);
-    printcard(0, turns);
 
     //deal
     for(int i = 0; i<3; i++) {
       printf("\n<Player%d>\n", players[i].idx);
       printf("보유 코인: %d\n", players[i].cash);
       players[i].card_player[turns] = deal(next++);
-      printcard(i, turns);
     }
 
 // 동점 우승이 한쌍이라도 있으면, 다음 게임으로 배팅 금액을 몰빵
@@ -309,7 +315,7 @@ void play(struct Player players[MAX_CLI])
   printf("게임이 종료됩니다.)");
 }
 
-//에러 함수
+//에러 메시지 출력 함수
 void error(const char *msg) {
     perror(msg);
     exit(1);
@@ -332,7 +338,7 @@ void error(const char *msg) {
 //시작
 // void start() {
 //   char choice;
-//   printf("블랙잭 게임에 오신 것을 환영합니다!\n시작하시겠습니까? [y/n] ");
+//   printf("Player가 다 모였습니다.\n게임을 시작하시겠습니까? [y/n] ");
 //   scanf("%c", &choice);
 
 //   while(choice!='Y' && choice!='y' && choice!='N' && choice!='n')
@@ -343,7 +349,7 @@ void error(const char *msg) {
 
 //   if(choice=='Y' || choice=='y')
 //   {
-//     //reset();//가진 돈 초기화
+//     printf("게임을 시작합니다.\n");
 //   }
 //   else if(choice=='N' || choice=='n')
 //   {

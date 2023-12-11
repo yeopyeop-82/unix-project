@@ -11,7 +11,7 @@ int main() {
     struct Card card_all[52];
 
     char buffer[256];
-
+    
     // 서버 소켓 생성
     serv_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (serv_sock < 0) {
@@ -55,21 +55,36 @@ int main() {
             }
             printf("Player%d 접속.\n", idx);
             num_clients++; idx++;
+        // 3명 접속하면, 게임 시작 알림 보내기
+        if (num_clients == MAX_CLI) {
+            char *start_msg = "블랙잭 게임을 시작합니다!";
+            for (int i = 0; i < num_clients; ++i) {
+                int n = write(clie_sock[i], start_msg, strlen(start_msg));
+                if (n < 0) {
+                    perror("write");
+                    exit(1);
+                    }
+                }
+            }
         }
-
+    
         //플레이어 초기화 후 덱 생성
-        filldeck(); // 덱을 채우는 함수
-        shuffle(); // 카드를 섞는 함수
-        int next = 0; // 카드의 인덱스
+        filldeck(card_all); // 덱을 채우는 함수
+        shuffle(card_all); // 카드를 섞는 함수
+        int next = 1; // 카드의 인덱스
 
-        // 클라이언트의 행동 처리
-        for (int i = 0; i < num_clients; i++) {
-            char buffer[256];
-            memset(buffer, 0, sizeof(buffer));
-            int n = read(clie_sock[i], buffer, sizeof(buffer));
-            if (n < 0) {
-                perror("read");
-                exit(1);
+        // 게임 진행
+        while(1) {
+            struct Card c = card_all[next];
+            for (int i = 0; i < MAX_CLI; ++i) {
+                // client_sockets[i]에 해당하는 클라이언트로 값을 보냄
+                int n = write(clie_sock[i], &c, sizeof(c));
+                if (n < 0) {
+                    perror("write");
+                    exit(1);
+                }
+                next++; // 다음 카드
+                struct Card c = card_all[next];
             }
 
             // 클라이언트의 액션에 따라 플레이어 업데이트
@@ -83,10 +98,8 @@ int main() {
 
             // 업데이트된 플레이어 정보를 클라이언트에 다시 전송
             // 예시: sendPlayerInfo(clie_sock[i], players[i]);
-        }
-
-        // 게임 루프 내에 다른 게임 로직과 조건을 추가할 수 있습니다.
-    }
+            }
+        }    
 
     // 연결된 클라이언트 소켓을 닫는 반복문
     for (int i = 0; i < num_clients; i++) {
