@@ -43,20 +43,21 @@ int main() {
     memset(buffer, 0, sizeof(buffer));
     n = read(clie_sock, buffer, sizeof(buffer));
     if (n < 0) {
-        error("ERROR reading from socket");
+        perror("read");
+        exit(1);
     }
     printf("%s\n", buffer);
-
+    
     while (1) {
         //stay를 선택한 경우 서버에 점수 전달하고 break
-        if (answer == 's' || answer == 'S') {
-            n = write(clie_sock, &playerInfo.score, sizeof(playerInfo.score));
-            if(n<0) {
-                perror("write");
-                exit(1);
-            }
-            break;
-        }
+        // if (answer == 's' || answer == 'S') {
+        //     n = write(clie_sock, &playerInfo.score, sizeof(playerInfo.score));
+        //     if(n<0) {
+        //         perror("write");
+        //         exit(1);
+        //     }
+        //     break;
+        // }
         //서버로부터 카드 받기
         n = read(clie_sock, &playerInfo.card_player, sizeof(playerInfo.card_player));
         if (n < 0) {

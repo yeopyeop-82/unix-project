@@ -79,13 +79,14 @@ int main() {
         // 게임 진행
         while(1) {
             struct Card c = card_all[turn];
-            for (int i = 0; i < MAX_CLI; i++) {
+            for (int i = 0; i < MAX_CLI; ++i) {
                 // client_sockets[i]에 해당하는 클라이언트로 값을 보냄
                 n = write(clie_sock[i], &c, sizeof(c));
                 if (n < 0) {
                     perror("write");
                     exit(1);
                 }
+                printf("%d %d :card info\n", c.number, c.shape);
                 turn++; // 다음 카드
                 struct Card c = card_all[turn];
             }
@@ -103,13 +104,7 @@ int main() {
 
                     //클라이언트 측에서 stayorhit() 진행 후 턴, player.score 반환
                     // 클라이언트의 액션에 따라 플레이어 업데이트
-                    if (strcmp(buffer, "hit") == 0) {
-                    // 플레이어가 hit한 경우 처리
-                    // 예시: players[i].score += cardValue(); // 카드 값에 따라 플레이어 점수 업데이트
-                    } else if (strcmp(buffer, "stand") == 0) {
-                    // 플레이어가 stand한 경우 처리
-                    // 예시: proceedGame(); // 게임 로직 진행
-                    }
+                    
                     //클라이언트가 사용한 턴 수 읽어오기
                     n = read(clie_sock[i], &clieturn, sizeof(clieturn));
                     if (n < 0) {
