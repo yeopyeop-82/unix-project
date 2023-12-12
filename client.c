@@ -4,6 +4,7 @@ int main() {
     int clie_sock, n, turn = 4;
     struct sockaddr_in server_addr;
     struct hostent *server;
+    struct Player newPlayer;
 
     char answer, matchResult, buffer[256];
 
@@ -32,10 +33,13 @@ int main() {
 
     // 서버로부터 플레이어 정보 수신
     struct Player playerInfo;
-    n = read(clie_sock, &playerInfo, sizeof(playerInfo));
+    n = read(clie_sock, &newPlayer, sizeof(newPlayer));
     if (n < 0) {
         perror("socket");
     }
+    memcpy(&playerInfo, &newPlayer, sizeof(struct Player));
+
+
     // 서버로부터 받은 본인의 플레이어 정보 출력
     printInfo(playerInfo);
 

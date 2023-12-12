@@ -190,6 +190,7 @@ void printInfo(struct Player playerInfo) {
   printf("플레이어 정보: Player%d\n", playerInfo.idx);
   printf("점수: %d\n", playerInfo.score);
   printf("보유금: %d\n", playerInfo.cash);
+  printcard(playerInfo);
 }
 
 // 게임 진행

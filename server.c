@@ -13,7 +13,12 @@ int main() {
     struct Card card_all[52];
 
     char buffer[256];
-    
+
+    //덱 생성
+        filldeck(card_all); // 덱을 채우는 함수
+        shuffle(card_all); // 카드를 섞는 함수
+        int turn = 0; // 생성한 덱에서 뽑는 순서
+
     // 서버 소켓 생성
     serv_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (serv_sock < 0) {
@@ -46,8 +51,8 @@ int main() {
             // 플레이어 데이터 초기화
             struct Player newPlayer;
             reset(&newPlayer); // reset() 함수 호출로 플레이어 데이터 초기화
-            players[num_clients] = newPlayer; // 초기화된 데이터를 서버의 플레이어 배열에 할당
             newPlayer.idx = idx;// 플레이어 번호 부여
+            players[num_clients] = newPlayer; // 초기화된 데이터를 서버의 플레이어 배열에 할당
 
             //각 클라이언트에게 생성한 플레이어 구조체 전달
             n = write(clie_sock[num_clients], &newPlayer, sizeof(newPlayer));
@@ -55,7 +60,7 @@ int main() {
                 perror("write");
                 exit(1);
             }
-            printf("Player%d 접속.\n", idx);
+            printf("Player%d 접속.\n", players[idx-1].idx);
             num_clients++; idx++;
 
             // 3명 접속하면, 게임 시작 알림 보내기
@@ -70,17 +75,12 @@ int main() {
                 }
             }
         }
-    
-        //플레이어 초기화 후 덱 생성
-        filldeck(card_all); // 덱을 채우는 함수
-        shuffle(card_all); // 카드를 섞는 함수
-        int turn = 0; // 생성한 덱에서 뽑는 순서
 
         // 게임 진행
         while(1) {
             for (int i = 0; i < MAX_CLI + 1; i++) {
                 // client_sockets[i]에 해당하는 클라이언트로 값을 보냄
-                n = write(clie_sock[i], &card_all[turn], sizeof(card_all[turn]));
+                int n = write(clie_sock[i], &card_all[turn], sizeof(card_all[turn]));
                 if (n < 0) {
                     perror("write");
                     exit(1);
