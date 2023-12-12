@@ -20,7 +20,7 @@
 #define CLUB "♣"
 #define DIA "◆"
 #define HEART "♥"
-#define MAX_CLI 3
+#define MAX_CLI 1
 
 enum shape { spade, club, dia, heart };
 enum num { ace = 1, jack = 11, queen = 12, king = 13 };
@@ -31,7 +31,6 @@ struct Card {
 };
 
 struct Player {
-    int idx;
     int cash;
     int score;
     struct Card card_player[21];
