@@ -8,7 +8,7 @@ int main() {
     // 각 클라이언트에게 할당해줄 플레이어 구조체 선언
     struct Player players[MAX_CLI];
     // 딜러 구조체 선언
-    struct Player dealer;
+    struct Player servDealer;
     // 카드 덱 생성
     struct Card card_all[52];
 
@@ -90,30 +90,40 @@ int main() {
             }
             //카드 배분이 끝난 후 클라이언트1부터 hitorstay진행하고 턴 반환
             for(int i = 0; i < MAX_CLI; i++) {
-                //현재 턴을 첫번째 클라이언트에게 전송해주기
-                n = write(clie_sock[i], &turn, sizeof(turn));
-                if (n<0) {
-                    perror("write");
-                    exit(1);
-                }
                 //클라이언트가 턴을 받아 읽고 stayorhit() 진행후 턴을 다시 write()하면 서버에서 받아옴
-                n = read(clie_sock[i], &clieturn, sizeof(clieturn));
-                if (n < 0) {
-                    perror("read");
-                    exit(1);
-                }
+                //이 부분은 비동기 처리 필요함
+                while (1) {
+                    //현재 턴을 첫번째 클라이언트에게 전송해주기
+                    n = write(clie_sock[i], &turn, sizeof(turn));
+                    if (n<0) {
+                        perror("write");
+                        exit(1);
+                    }
+
+                    //클라이언트 측에서 stayorhit() 진행 후 턴, player.score 반환
+                    // 클라이언트의 액션에 따라 플레이어 업데이트
+                    if (strcmp(buffer, "hit") == 0) {
+                    // 플레이어가 hit한 경우 처리
+                    // 예시: players[i].score += cardValue(); // 카드 값에 따라 플레이어 점수 업데이트
+                    } else if (strcmp(buffer, "stand") == 0) {
+                    // 플레이어가 stand한 경우 처리
+                    // 예시: proceedGame(); // 게임 로직 진행
+                    }
+                    //클라이언트가 사용한 턴 수 읽어오기
+                    n = read(clie_sock[i], &clieturn, sizeof(clieturn));
+                    if (n < 0) {
+                        perror("read");
+                        exit(1);
+                    }
                 //해당 클라이언트가 진행한 턴 수 더해주기
                 turn += clieturn;
+                //해당 클라이언트 턴 종료, 다음 클라이언트 진행
+                break;
+                }
             }
-
-            // 클라이언트의 액션에 따라 플레이어 업데이트
-            if (strcmp(buffer, "hit") == 0) {
-                // 플레이어가 hit한 경우 처리
-                // 예시: players[i].score += cardValue(); // 카드 값에 따라 플레이어 점수 업데이트
-            } else if (strcmp(buffer, "stand") == 0) {
-                // 플레이어가 stand한 경우 처리
-                // 예시: proceedGame(); // 게임 로직 진행
-            }
+            //클라이언트 플레이가 끝난 후 딜러 측 플레이 시작
+            serv
+            printcard(servDealer);
 
             // 업데이트된 플레이어 정보를 클라이언트에 다시 전송
             // 예시: sendPlayerInfo(clie_sock[i], players[i]);

@@ -149,12 +149,11 @@ struct Player printcard(const struct Player player)
   return p;
 }
 
-// HIT STAY 결정, 플레이어 정보, 카드 턴 인자로 받음, HIT은 1 리턴, STAY는 0 리턴, 클라이언트
-int stayorhit(struct Player player, int turns)
-{
+// HIT STAY 결정, 플레이어 정보, 카드 턴 인자로 받음, 클라이언트
+int stayorhit(struct Player player, int turn) {
   char answer;
 
-  printf("\n+     PLAYER%d 님의 차례!     +\n\n", player.idx);
+  printf("\n+         PLAYER%d 님의 차례!         +\n\n", player.idx);
   while(1)
   {
     printf("HIT을 원하시면 h를, STAY를 원하시면 s를 입력하세요[h/s]: ");
@@ -162,7 +161,7 @@ int stayorhit(struct Player player, int turns)
 
     if (answer == 'h' || answer == 'H')
     {
-      turns += 1;
+      turn += 1;
       return HIT;
     }
     else if (answer == 's' || answer == 'S')
@@ -184,25 +183,6 @@ int stayorhit(struct Player player, int turns)
   {
     printf("21점입니다.\n승리하셨습니다.\n");
   }
-}
-
-// 딜러는 지능적으로 16까지만 안전하게 여기고 hit, 딜러 알고리즘, 서버
-void dealer(int turns)
-{
-  printf("\n##########DEALER's TURN##########\n\n");
-  while(player[0].score < 21)
-  {
-    if (player[0].score < AI)
-    {
-      turns++;
-      player[0].card_player[turns] = deal(next++);
-    }
-    else
-    {
-      break;
-    }
-  }
-  if(player[0].score>21) player[0].score = 0;
 }
 
 //플레이어 구조체 받아서 정보 출력해주는 함수, 클라이언트
@@ -357,3 +337,21 @@ void error(const char *msg) {
 //   return;
 // }
 
+// 딜러는 지능적으로 16까지만 안전하게 여기고 hit, 딜러 알고리즘, 서버
+// void dealer(int turns)
+// {
+//   printf("\n##########DEALER's TURN##########\n\n");
+//   while(player[0].score < 21)
+//   {
+//     if (player[0].score < AI)
+//     {
+//       turns++;
+//       player[0].card_player[turns] = deal(next++);
+//     }
+//     else
+//     {
+//       break;
+//     }
+//   }
+//   if(player[0].score>21) player[0].score = 0;
+// }

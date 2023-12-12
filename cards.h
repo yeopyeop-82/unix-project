@@ -13,8 +13,8 @@
 #include <netdb.h>
 
 #define PORT 12345
-#define HIT 1
-#define STAY 0
+#define HIT 2
+#define STAY 1
 #define AI 17
 #define SPADE "♠"
 #define CLUB "♣"
