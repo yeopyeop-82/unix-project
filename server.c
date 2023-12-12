@@ -57,14 +57,15 @@ int main() {
             }
             printf("Player%d 접속.\n", idx);
             num_clients++; idx++;
-        // 3명 접속하면, 게임 시작 알림 보내기
-        if (num_clients == MAX_CLI) {
-            char *start_msg = "블랙잭 게임을 시작합니다!";
-            for (int i = 0; i < num_clients; ++i) {
-                n = write(clie_sock[i], start_msg, strlen(start_msg));
-                if (n < 0) {
-                    perror("write");
-                    exit(1);
+
+            // 3명 접속하면, 게임 시작 알림 보내기
+            if (num_clients == MAX_CLI) {
+                char *start_msg = "블랙잭 게임을 시작합니다!";
+                for (int i = 0; i < num_clients; i++) {
+                    n = write(clie_sock[i], start_msg, strlen(start_msg));
+                    if (n < 0) {
+                        perror("write");
+                        exit(1);
                     }
                 }
             }
@@ -78,7 +79,7 @@ int main() {
         // 게임 진행
         while(1) {
             struct Card c = card_all[turn];
-            for (int i = 0; i < MAX_CLI; ++i) {
+            for (int i = 0; i < MAX_CLI; i++) {
                 // client_sockets[i]에 해당하는 클라이언트로 값을 보냄
                 n = write(clie_sock[i], &c, sizeof(c));
                 if (n < 0) {
@@ -122,7 +123,6 @@ int main() {
                 }
             }
             //클라이언트 플레이가 끝난 후 딜러 측 플레이 시작
-            serv
             printcard(servDealer);
 
             // 업데이트된 플레이어 정보를 클라이언트에 다시 전송

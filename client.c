@@ -49,7 +49,7 @@ int main() {
 
     while (1) {
         //stay를 선택한 경우 서버에 점수 전달하고 break
-        if (answer == "s" || answer == "S") {
+        if (answer == 's' || answer == 'S') {
             n = write(clie_sock, &playerInfo.score, sizeof(playerInfo.score));
             if(n<0) {
                 perror("write");
@@ -112,7 +112,7 @@ int main() {
         //진행한 턴 수 서버로 전달
         n = write(clie_sock, &turn, sizeof(turn));
         if (n < 0) {
-            prerror("write");
+            perror("write");
             exit(1);
         }
         printf("결과: %s\n", buffer);
