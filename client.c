@@ -5,7 +5,7 @@ int main()
     int clie_sock, n, turn = 4;
     struct sockaddr_in server_addr;
     struct hostent *server;
-    struct Player player;
+    struct Player player, dealer;
     struct Card card;
 
     char choice, matchResult, buffer[256];
@@ -51,7 +51,7 @@ int main()
     printcard(&player);
     while (1)
     {
-        printf("\n+         HIT or STAY         +\nh/s 입력:\n");
+        printf("\n+         HIT or STAY         +\nh/s 입력:");
         scanf("%c", &choice);
         if (choice == 'h' || choice == 'H')
         {
@@ -60,14 +60,35 @@ int main()
             // 서버에서 카드 받아오기
             n = read(clie_sock, &player.card_player, sizeof(player.card_player));
             // 플레이어 정보 출력
+            player.score += player.card_player->number;
             printInfo(&player);
             printcard(&player);
         }
         else if (choice == 's' || choice == 'S' || player.score > 21)
         {
+            n = write(clie_sock, &choice, sizeof(choice));
             // 서버에 점수 총합 전달
             n = write(clie_sock, &player.score, sizeof(player.score));
             break;
+        }
+    }
+    // 딜러 차례
+    while (1)
+    {
+        n = read(clie_sock, &choice, sizeof(choice));
+        if (choice == 'h' || choice == 'H')
+        {
+            // 딜러가 HIT한 경우 딜러 플레이 중계
+            n = read(clie_sock, &dealer.card_player, sizeof(dealer.card_player));
+            printf("<딜러 HIT>\n");
+            printcard(&dealer);
+            printf("<딜러 점수: %d>", dealer.score);
+        }
+        else
+        {
+            char *s;
+            n = read(clie_sock, &s, sizeof(s));
+            printf("%s\n", s);
         }
     }
     close(clie_sock);

@@ -103,15 +103,12 @@ void printcard(struct Player *player)
     break;
   case jack:
     printf("|   J   |\n");
-    player->score += 10;
     break;
   case queen:
     printf("|   Q   |\n");
-    player->score += 10;
     break;
   case king:
     printf("|   K   |\n");
-    player->score += 10;
     break;
   default:
     printf("|  %2d   |\n", player->card_player->number);

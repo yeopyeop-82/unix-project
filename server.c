@@ -48,18 +48,17 @@ int main()
     // 클라이언트 연결 수락 및 플레이어 데이터 초기화
     clie_sock = accept(serv_sock, (struct sockaddr *)&client_addr, &client_len);
     // 플레이어 데이터 초기화
-    reset(&players); // reset() 함수 호출로 플레이어 데이터 초기화
+    reset(&players);    // reset() 함수 호출로 플레이어 데이터 초기화
+    reset(&servDealer); // reset() 함수 호출로 딜러 초기화
     printf("%d %d : playerInfo\n", players.cash, players.score);
 
     // client_sockets[i]에 해당하는 클라이언트로 값을 보냄
     n = write(clie_sock, &players, sizeof(players));
-    if (n < 0)
-    {
-        perror("write");
-        exit(1);
-    }
+
     // 카드 정보 송신
     n = write(clie_sock, &card_all[turn], sizeof(card_all[turn]));
+    // 서버측에서 갖고 있는 플레이어 점수 정보에 첫 카드의 점수 더하기
+    players.score += card_all[turn].number;
     printf("%d %d :card info/ %d :turn\n", card_all[turn].number, card_all[turn].shape, turn);
     turn++; // 다음 카드
 
@@ -76,28 +75,46 @@ int main()
         else
         {
             n = read(clie_sock, &players.score, sizeof(players.score));
+
             break;
         }
     }
     // 딜러 차례
-    printf("\n+딜러 차례입니다.+\n\n");
-    while (players.score < 21)
+    while (1)
     {
-        if (players.score < AI)
+        if (players.score > 21)
         {
-            turn++;
-            players.card_player[turn] = card_all[next++];
+            players.score = 0;
+            printf("플레이어 패배\n");
         }
         else
         {
-            break;
+            printf("\n+딜러 차례입니다.+\n\n");
+            printf("\n+         HIT or STAY         +\nh/s 입력:");
+            scanf("%c", &choice);
+            if (choice == 'h' || choice == 'H')
+            {
+                // 클라이언트에에 h 알림
+                n = write(clie_sock, &choice, sizeof(choice));
+                // 딜러 다음 카드 뽑기, 그냥 딜러 스코어 더 함
+                servDealer.score += card_all[turn].number;
+                // 클라이언트에 딜러가 뽑은 카드 알림
+                n = write(clie_sock, &servDealer.card_player, sizeof(servDealer.card_player));
+                turn++;
+                // 딜러 점수 현황
+                printf("Dealer Score: %d\n", dealerScore);
+            }
+            else if (dealerScore <= 21 && dealerScore > players.score)
+            {
+                char *s = "딜러 승리\n";
+                // 게임 결과 전달
+                n = write(clie_sock, &s, sizeof(s));
+
+                break;
+            }
         }
     }
-    if (players.score > 21)
-    {
-        players.score = 0;
-    }
-
+    printf("게임 종료\n");
     // 연결된 클라이언트 소켓을 닫는 반복문
     close(clie_sock);
     // 서버 소켓 닫음
