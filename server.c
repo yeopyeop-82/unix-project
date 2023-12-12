@@ -78,17 +78,15 @@ int main() {
 
         // 게임 진행
         while(1) {
-            struct Card c = card_all[turn];
-            for (int i = 0; i < MAX_CLI; ++i) {
+            for (int i = 0; i < MAX_CLI + 1; i++) {
                 // client_sockets[i]에 해당하는 클라이언트로 값을 보냄
-                n = write(clie_sock[i], &c, sizeof(c));
+                n = write(clie_sock[i], &card_all[turn], sizeof(card_all[turn]));
                 if (n < 0) {
                     perror("write");
                     exit(1);
                 }
-                printf("%d %d :card info\n", c.number, c.shape);
+                printf("%d %d :card info/ %d :turn\n", card_all[turn].number, card_all[turn].shape, turn);
                 turn++; // 다음 카드
-                struct Card c = card_all[turn];
             }
             //카드 배분이 끝난 후 클라이언트1부터 hitorstay진행하고 턴 반환
             for(int i = 0; i < MAX_CLI; i++) {
@@ -96,25 +94,13 @@ int main() {
                 //이 부분은 비동기 처리 필요함
                 while (1) {
                     //현재 턴을 첫번째 클라이언트에게 전송해주기
-                    n = write(clie_sock[i], &turn, sizeof(turn));
-                    if (n<0) {
-                        perror("write");
-                        exit(1);
-                    }
 
                     //클라이언트 측에서 stayorhit() 진행 후 턴, player.score 반환
                     // 클라이언트의 액션에 따라 플레이어 업데이트
                     
-                    //클라이언트가 사용한 턴 수 읽어오기
-                    n = read(clie_sock[i], &clieturn, sizeof(clieturn));
-                    if (n < 0) {
-                        perror("read");
-                        exit(1);
-                    }
                 //해당 클라이언트가 진행한 턴 수 더해주기
                 turn += clieturn;
                 //해당 클라이언트 턴 종료, 다음 클라이언트 진행
-                break;
                 }
             }
             //클라이언트 플레이가 끝난 후 딜러 측 플레이 시작

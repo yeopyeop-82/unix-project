@@ -72,61 +72,61 @@ int main() {
         //딜러측에서 한장 클라이언트 각 한장씩 뽑으면 turn은 4고, 
         //여기서 클라이언트1이 HIT을 두번 하면 클라이언트2의 turn은 7임
 
-        n = read(clie_sock, &turn, sizeof(turn));
-        if (n < 0) {
-            perror("read");
-            exit(1);
-        }
+        // n = read(clie_sock, &turn, sizeof(turn));
+        // if (n < 0) {
+        //     perror("read");
+        //     exit(1);
+        // }
         //stay or hit 결정
         printf("\n+         PLAYER%d 님의 차례!         +\n\n", playerInfo.idx);
 
-        while(1) {
-        printf("HIT을 원하시면 h를, STAY를 원하시면 s를 입력하세요[h/s]: ");
-        scanf(" %c", &answer);
+    //     while(1) {
+    //     printf("HIT을 원하시면 h를, STAY를 원하시면 s를 입력하세요[h/s]: ");
+    //     scanf(" %c", &answer);
 
-        if (answer == 'h' || answer == 'H') {
-            turn += 1;
-            //서버에 h or H 요청 보내기, 아닌 경우 서버측에서는 점수를 받아 해당 플레이어의 승패 처리 후 게임 결과 반환해주면 됨
-            n = write(clie_sock, &answer, sizeof(answer));
-            if (n<0) {
-                perror("write");
-                exit(1);
-            }
-            //처음으로 돌아가 카드 받기
-            break;
-        }
-        else if (answer == 's' || answer == 'S') {
-            break;
-        }
-        else {
-            printf("잘못 입력하셨습니다.\nHIT이면 'h', STAY면 's'를 입력해주세요.");
-        }
-        }
-        //무조건 패배한 경우
-        if(playerInfo.score>21) {
-            printf("21점 초과.\n패배하셨습니다.\n");
-        }
-        //무조건 승리한 경우
-        else if (playerInfo.score==21) {
-            printf("21점입니다.\n승리하셨습니다.\n");
-        }           
-        //진행한 턴 수 서버로 전달
-        n = write(clie_sock, &turn, sizeof(turn));
-        if (n < 0) {
-            perror("write");
-            exit(1);
-        }
-        printf("결과: %s\n", buffer);
-        break;
-    }
-    //서버로부터 게임 결과 받아 오기
-    n = read(clie_sock, &matchResult, sizeof(matchResult));
-    if(n<0) {
-        perror("read");
-        exit(1);
-    }
+    //     if (answer == 'h' || answer == 'H') {
+    //         turn += 1;
+    //         //서버에 h or H 요청 보내기, 아닌 경우 서버측에서는 점수를 받아 해당 플레이어의 승패 처리 후 게임 결과 반환해주면 됨
+    //         n = write(clie_sock, &answer, sizeof(answer));
+    //         if (n<0) {
+    //             perror("write");
+    //             exit(1);
+    //         }
+    //         //처음으로 돌아가 카드 받기
+    //         break;
+    //     }
+    //     else if (answer == 's' || answer == 'S') {
+    //         break;
+    //     }
+    //     else {
+    //         printf("잘못 입력하셨습니다.\nHIT이면 'h', STAY면 's'를 입력해주세요.");
+    //     }
+    //     }
+    //     //무조건 패배한 경우
+    //     if(playerInfo.score>21) {
+    //         printf("21점 초과.\n패배하셨습니다.\n");
+    //     }
+    //     //무조건 승리한 경우
+    //     else if (playerInfo.score==21) {
+    //         printf("21점입니다.\n승리하셨습니다.\n");
+    //     }           
+    //     //진행한 턴 수 서버로 전달
+    //     n = write(clie_sock, &turn, sizeof(turn));
+    //     if (n < 0) {
+    //         perror("write");
+    //         exit(1);
+    //     }
+    //     printf("결과: %s\n", buffer);
+    //     break;
+    // }
+    // //서버로부터 게임 결과 받아 오기
+    // n = read(clie_sock, &matchResult, sizeof(matchResult));
+    // if(n<0) {
+    //     perror("read");
+    //     exit(1);
+    // }
     // 소켓 닫기
     close(clie_sock);
-
+    }
     return 0;
 }
