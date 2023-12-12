@@ -1,0 +1,22 @@
+CC = gcc
+CFLAGS = -Wall
+
+all: server client
+
+server: server.o func.o
+	$(CC) $(CFLAGS) -o server server.o func.o
+
+client: client.o func.o
+	$(CC) $(CFLAGS) -o client client.o func.o
+
+server.o: server.c cards.h
+	$(CC) $(CFLAGS) -c server.c
+
+client.o: client.c cards.h
+	$(CC) $(CFLAGS) -c client.c
+
+func.o: func.c cards.h
+	$(CC) $(CFLAGS) -c func.c
+
+clean:
+	rm -f *.o server client
