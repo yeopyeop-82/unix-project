@@ -6,6 +6,7 @@ int main()
     struct sockaddr_in server_addr;
     struct hostent *server;
     struct Player player;
+    struct Card card;
 
     char choice, matchResult, buffer[256];
 
@@ -35,22 +36,21 @@ int main()
 
     printf("게임을 시작합니다!\n");
 
+    // 서버로부터 플레이어 정보 받기
+    n = read(clie_sock, &player, sizeof(player));
+    if (n < 0)
+    {
+        perror("read");
+        exit(1);
+    }
+    // 카드 받기
+    n = read(clie_sock, &card, sizeof(card));
+    // 플레이어 정보 출력
+    printInfo(&player);
+    // 자신이 뽑은 카드 확인
+    printcard(&player);
     while (1)
     {
-        // 서버로부터 플레이어 정보 받기
-        n = read(clie_sock, &player, sizeof(player));
-        if (n < 0)
-        {
-            perror("read");
-            exit(1);
-        }
-        // 카드 받기
-        n = read(clie_sock, &player.card_player, sizeof(player.card_player));
-        // 플레이어 정보 출력
-        printInfo(&player);
-        // 자신이 뽑은 카드 확인
-        printcard(&player);
-
         printf("\n+         HIT or STAY         +\nh/s 입력:\n");
         scanf("%c", &choice);
         if (choice == 'h' || choice == 'H')
@@ -59,15 +59,17 @@ int main()
             n = write(clie_sock, &choice, sizeof(choice));
             // 서버에서 카드 받아오기
             n = read(clie_sock, &player.card_player, sizeof(player.card_player));
-            pritncard(&player);
+            // 플레이어 정보 출력
+            printInfo(&player);
+            printcard(&player);
         }
-        else if (choice == 's' || choice == 'S')
+        else if (choice == 's' || choice == 'S' || player.score > 21)
         {
             // 서버에 점수 총합 전달
             n = write(clie_sock, &player.score, sizeof(player.score));
+            break;
         }
-        break;
-        }
+    }
     close(clie_sock);
     return 0;
 }
