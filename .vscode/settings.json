@@ -4,6 +4,5 @@
     "ostream": "c",
     "bitset": "c",
     "optional": "c"
-  },
-  "C_Cpp.errorSquiggles": "disabled"
+  }
 }

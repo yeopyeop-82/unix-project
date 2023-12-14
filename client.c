@@ -22,6 +22,7 @@ int main()
     if (clie_sock < 0) // 클라이언트 소켓 에러 처리
     {
         perror("socket");
+        exit(1);
     }
     // 서버 주소 설정
     server = gethostbyname("localhost");
@@ -44,6 +45,7 @@ int main()
     if (connect(clie_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
         perror("connect");
+        exit(1);
     }
 
     printf("게임을 시작합니다!\n");
@@ -72,7 +74,7 @@ int main()
 
     // 자신이 뽑은 카드 확인
     printcard(&player);
-    printf("Player Score: %d", player.score);
+    printf("Player Score: %d\n", player.score);
 
     // 베팅 금액 결정
     betting(&player);
@@ -103,7 +105,7 @@ int main()
             }
 
             printcard(&player);
-            printf("Player Score: %d", player.score);
+            printf("Player Score: %d\n", player.score);
 
             if (player.score > 21)
             {
@@ -114,12 +116,17 @@ int main()
 
                 break;
             }
+            else if (player.score == 21)
+            {
+                printf("승리하셨습니다!\n");
+                break;
+            }
         }
         else if (choice == 's' || choice == 'S')
         {
             // STAY 선택이나 점수가 21을 초과한 경우 서버에 전달하고 루프 종료
             n = write(clie_sock, &choice, sizeof(choice));
-            printf("+플레이어 턴 종료!+\n");
+            printf("\n\n+플레이어 턴 종료!+\n");
             // 서버에 플레이어 점수 전송
             n = write(clie_sock, &player.score, sizeof(player.score));
             // 중계 모드 시작
@@ -127,107 +134,52 @@ int main()
             {
                 if (dealer.score < 21 && dealer.score < player.score)
                 {
+                    // 딜러는 플레이어를 승리하는 조건 달성할 때까지 드로우 해야함
                     n = read(clie_sock, &choice, sizeof(choice));
-                    printf("%c: 딜러 결정", choice);
 
                     // 딜러가 딜러 플레이 중계, 아직 구현 안된거임
                     n = read(clie_sock, &dealer.card_player, sizeof(dealer.card_player));
-                    printf("<딜러 HIT>\n");
-                    printcard(&dealer);
-                    printf("Dealer Score: %d", dealer.score);
 
                     // 받은 카드 점수 더하기
-                    if (dealer.card_player->number == ace && dealer.score <= 10)
+                    if (dealer.card_player->number == ace)
                     {
-                        printf("ACE 11점으로 처리되었습니다!\n");
-                        dealer.score += 11;
+                        if (dealer.score <= 10)
+                        {
+                            printf("ACE 11점으로 처리되었습니다!\n");
+                            dealer.score += 11;
+                        }
+                        else
+                        {
+                            printf("ACE 1점으로 처리되었습니다!\n");
+                            dealer.score += dealer.card_player->number;
+                        }
                     }
-                    else
+                    if (dealer.score == 0)
                     {
-                        printf("ACE 1점으로 처리되었습니다!\n");
-                        dealer.score += dealer.card_player->number;
+                        break;
                     }
-                    printf("<현재 딜러 점수: %d>", dealer.score);
+                    printf("<딜러 HIT>\n");
+                    printcard(&dealer);
+                    printf("Dealer Score: %d\n", dealer.score);
                 }
 
                 else if (dealer.score > 21)
                 {
-                    printf("축하합니다! 승리하셨습니다!\n");
-                    break;
-                }
-            }
-            else
-            {
-                // 딜러의 턴 종료 메시지 받아 출력
-                printf("딜러턴종료\n");
-                if (dealer.score > player.score)
-                {
-                    printf("축하합니다! 승리하셨습니다!\n");
+                    // 플레이어 승리 조건
+                    printf("\n+축하합니다! 승리하셨습니다!+\n");
                     break;
                 }
                 else
                 {
-                    printf("패배하셨습니다.\n");
+                    // 플레이어 패배 조건
+                    printf("\n+패배하셨습니다.+\n");
                     break;
                 }
-                break;
             }
             break;
         }
-        break;
     }
-}
-
-// 딜러 중계 모드
-while (1)
-{
-    n = read(clie_sock, &choice, sizeof(choice));
-
-    if (choice == 'h' || choice == 'H')
-    {
-        // 딜러가 HIT한 경우 딜러 플레이 중계, 아직 구현 안된거임
-        n = read(clie_sock, &dealer.card_player, sizeof(dealer.card_player));
-        printf("<딜러 HIT>\n");
-        printcard(&dealer);
-        printf("Dealer Score: %d", dealer.score);
-
-        // 받은 카드 점수 더하기
-        if (dealer.card_player->number == ace && dealer.score <= 10)
-        {
-            printf("ACE 11점으로 처리되었습니다!\n");
-            dealer.score += 11;
-        }
-        else
-        {
-            printf("ACE 1점으로 처리되었습니다!\n");
-            dealer.score += dealer.card_player->number;
-        }
-        printf("<현재 딜러 점수: %d>", dealer.score);
-        if (dealer.score > 21)
-        {
-            printf("축하합니다! 승리하셨습니다!\n");
-            break;
-        }
-    }
-    else
-    {
-        // 딜러의 턴 종료 메시지 받아 출력
-        printf("딜러턴종료\n");
-        if (dealer.score > player.score)
-        {
-            printf("축하합니다! 승리하셨습니다!\n");
-            break;
-        }
-        else
-        {
-            printf("패배하셨습니다.\n");
-            break;
-        }
-        break;
-    }
-}
-
-// 소켓 닫기
-close(clie_sock);
-return 0;
+    // 소켓 닫기
+    close(clie_sock);
+    return 0;
 }

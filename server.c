@@ -107,49 +107,39 @@ int main()
             // 딜러 차례
             while (1)
             {
+                // 딜러는 플레이어를 이기는 조건을 달성할 때까지 드로우 해야함.
                 if (servDealer.score < players.score && servDealer.score < 21)
                 {
-                    break;
-                }
-
-                printf("+딜러 차례입니다.+ 상대 플레이어의 점수: %d\n", players.score);
-                servDealer.card_player->number = card_all[turn].number;
-                servDealer.card_player->shape = card_all[turn].shape;
-                printcard(&servDealer);
-                servDealer.score += card_all[turn].number;
-                printf("Dealer Score: %d\n", servDealer.score);
-                turn++;
-
-                printf("\n[HIT or STAY]\nh/s 중 입력하세요:");
-                fflush(stdin);      // 기존에 입력된 내용이 있다면 비우기
-                choice = getchar(); // 개행 문자 이전의 문자만 받아옴
-
-                if (choice == 'h' || choice == 'H')
-                {
+                    printf("+딜러 차례입니다.+ 상대 플레이어의 점수: %d\n", players.score);
+                    servDealer.card_player->number = card_all[turn].number;
+                    servDealer.card_player->shape = card_all[turn].shape;
+                    printcard(&servDealer);
+                    servDealer.score += card_all[turn].number;
+                    printf("Dealer Score: %d\n", servDealer.score);
+                    turn++;
                     // 클라이언트에에 h 알림
                     n = write(clie_sock, &choice, sizeof(choice));
-                    // 딜러 다음 카드 뽑기, 그냥 딜러 스코어 더 함
-                    servDealer.score += card_all[turn].number;
+
                     // 클라이언트에 딜러가 뽑은 카드 알림
                     n = write(clie_sock, &servDealer.card_player, sizeof(servDealer.card_player));
-                    turn++;
-                    // 딜러 점수 현황
-                    printf("Dealer Score: %d\n", servDealer.score);
                 }
-                else if (choice == 's' || choice == 'S')
-                {
-                    break;
-                }
+
                 else if (servDealer.score <= 21)
                 {
                     // 딜러의 승리 조건을 딜러의 점수를 계산한 후에 비교
                     if (servDealer.score > players.score)
                     {
-                        char *s = "딜러 승리\n";
-                        // 게임 결과 전달
-                        n = write(clie_sock, s, strlen(s) + 1);
+                        // char *s = "딜러 승리\n";
+                        // // 게임 결과 전달
+                        // n = write(clie_sock, s, strlen(s) + 1);
+                        printf("플레이어 패배!\n");
                         break;
                     }
+                }
+                else
+                {
+                    printf("플레이어 승리!\n");
+                    break;
                 }
             }
             break;
