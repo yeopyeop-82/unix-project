@@ -58,14 +58,21 @@ int main()
     // 카드 받기
     n = read(clie_sock, &player.card_player, sizeof(player.card_player));
     // 받은 카드 점수 더하기
-    if (player.card_player->number == ace && player.score <= 10)
+    if (player.card_player->number == ace)
     {
-        printf("ACE 11점으로 처리되었습니다!\n");
-        player.score += 11;
+        if (player.score <= 10)
+        {
+            printf("ACE 11점으로 처리되었습니다!\n");
+            player.score += 11;
+        }
+        else
+        {
+            printf("ACE 1점으로 처리되었습니다!\n");
+            player.score += player.card_player->number;
+        }
     }
     else
     {
-        printf("ACE 1점으로 처리되었습니다!\n");
         player.score += player.card_player->number;
     }
 
@@ -82,7 +89,7 @@ int main()
     while (1)
     {
         // 플레이어에게 HIT 또는 STAY 선택 요청
-        printf("\n[HIT or STAY]\nh/s 중 입력하세요:");
+        printf("[HIT or STAY]\nh/s 중 입력하세요:");
         fflush(stdin);      // 기존에 입력된 내용이 있다면 비우기
         choice = getchar(); // 개행 문자 이전의 문자만 받아옴
 
@@ -93,14 +100,21 @@ int main()
             // 서버에서 카드 받아오기
             n = read(clie_sock, &player.card_player, sizeof(player.card_player));
             // 받은 카드 점수 더하기
-            if (player.card_player->number == ace && player.score <= 10)
+            if (player.card_player->number == ace)
             {
-                printf("ACE 11점으로 처리되었습니다!\n");
-                player.score += 11;
+                if (player.score <= 10)
+                {
+                    printf("ACE 11점으로 처리되었습니다!\n");
+                    player.score += 11;
+                }
+                else
+                {
+                    printf("ACE 1점으로 처리되었습니다!\n");
+                    player.score += player.card_player->number;
+                }
             }
             else
             {
-                printf("ACE 1점으로 처리되었습니다!\n");
                 player.score += player.card_player->number;
             }
 
@@ -110,6 +124,7 @@ int main()
             if (player.score > 21)
             {
                 printf("패배하셨습니다!\n");
+                player.bet = 0;
 
                 // 서버에 점수 총합 전달
                 n = write(clie_sock, &player.score, sizeof(player.score));
@@ -118,7 +133,8 @@ int main()
             }
             else if (player.score == 21)
             {
-                printf("승리하셨습니다!\n");
+                player.bet *= 3;
+                printf("\n+축하합니다! 승리하셨습니다! %d 획득!+\n", player.bet);
                 break;
             }
         }
@@ -132,12 +148,12 @@ int main()
             // 중계 모드 시작
             while (1)
             {
-                if (dealer.score < 21 && dealer.score < player.score)
+                if (dealer.score < 21 && dealer.score <= player.score)
                 {
                     // 딜러는 플레이어를 승리하는 조건 달성할 때까지 드로우 해야함
                     n = read(clie_sock, &choice, sizeof(choice));
 
-                    // 딜러가 딜러 플레이 중계, 아직 구현 안된거임
+                    // 딜러가 뽑은 카드 가져오기
                     n = read(clie_sock, &dealer.card_player, sizeof(dealer.card_player));
 
                     // 받은 카드 점수 더하기
@@ -154,11 +170,16 @@ int main()
                             dealer.score += dealer.card_player->number;
                         }
                     }
+                    else
+                    {
+                        dealer.score += dealer.card_player->number;
+                    }
                     if (dealer.score == 0)
                     {
                         break;
                     }
-                    printf("<딜러 HIT>\n");
+                    sleep(1);
+                    printf("\n<딜러 HIT>\n");
                     printcard(&dealer);
                     printf("Dealer Score: %d\n", dealer.score);
                 }
@@ -166,19 +187,25 @@ int main()
                 else if (dealer.score > 21)
                 {
                     // 플레이어 승리 조건
-                    printf("\n+축하합니다! 승리하셨습니다!+\n");
+                    player.bet *= 2;
+                    printf("\n+축하합니다! 승리하셨습니다! %d 획득!+\n", player.bet);
                     break;
                 }
                 else
                 {
                     // 플레이어 패배 조건
                     printf("\n+패배하셨습니다.+\n");
+                    player.bet = 0;
                     break;
                 }
             }
             break;
         }
     }
+    // 베팅금액 정산
+    player.cash += player.bet;
+    player.bet = 0;
+    printInfo(&player);
     // 소켓 닫기
     close(clie_sock);
     return 0;

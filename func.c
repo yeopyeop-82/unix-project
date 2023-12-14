@@ -26,10 +26,20 @@ void betting(struct Player *player)
 
     if (b > 0 && b <= player->cash)
     {
-      player->bet += b;
-      player->cash -= b;
-      printf("%d 베팅 완료!\n\n", b);
-      break; // 올바른 값 입력 시 루프 탈출
+      if (b == player->cash)
+      {
+        player->bet += b;
+        player->cash -= b;
+        printf("All In...!\n\n");
+        break; // 올바른 값 입력 시 루프 탈출
+      }
+      else
+      {
+        player->bet += b;
+        player->cash -= b;
+        printf("%d 베팅 완료!\n\n", b);
+        break; // 올바른 값 입력 시 루프 탈출
+      }
     }
     else
     {
@@ -202,9 +212,8 @@ int stayorhit(struct Player player, int turn)
 // 플레이어 구조체 받아서 정보 출력해주는 함수, 클라이언트
 void printInfo(struct Player *player)
 {
-  printf("<플레이어 정보>\n");
-  printf("점수: %d\n", player->score);
-  printf("보유금: %d\n", player->cash);
+  printf("┌───────┐\n플레이어 정보>\n");
+  printf("보유금: %d\n└───────┘\n", player->cash);
 }
 
 void error(const char *msg)
