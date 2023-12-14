@@ -212,8 +212,8 @@ int stayorhit(struct Player player, int turn)
 // 플레이어 구조체 받아서 정보 출력해주는 함수, 클라이언트
 void printInfo(struct Player *player)
 {
-  printf("┌───────┐\n플레이어 정보>\n");
-  printf("보유금: %d\n└───────┘\n", player->cash);
+  printf("┌────────────┐\n플레이어 정보\n");
+  printf("보유금: %d\n└────────────┘\n", player->cash);
 }
 
 void error(const char *msg)
