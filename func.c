@@ -9,6 +9,33 @@ void reset(struct Player *players)
 {
   players->score = 0;  // 플레이어의 점수 초기화
   players->cash = 500; // 플레이어의 현금 초기화
+  players->bet = 0;
+}
+void betting(struct Player *player)
+{
+  int b;
+
+  while (1)
+  {
+    printf("얼마를 베팅하시겠습니까? 현재 보유금액:%d\n", player->cash);
+
+    scanf("%d", &b);
+
+    while (getchar() != '\n')
+      ; // 버퍼 비우기
+
+    if (b > 0 && b <= player->cash)
+    {
+      player->bet += b;
+      player->cash -= b;
+      printf("%d 베팅 완료!\n\n", b);
+      break; // 올바른 값 입력 시 루프 탈출
+    }
+    else
+    {
+      printf("올바른 값을 입력하세요 (0 < %d인 정수)\n", player->cash);
+    }
+  }
 }
 
 // 카드 섞는 함수, 서버
@@ -99,7 +126,6 @@ void printcard(struct Player *player)
   {
   case ace:
     printf("|   A   |\n");
-    ace_score = -1;
     break;
   case jack:
     printf("|   J   |\n");
@@ -132,16 +158,6 @@ void printcard(struct Player *player)
   }
 
   printf("└───────┘\n");
-
-  // ace 계산 묻기
-  if (ace_score == -1)
-  {
-    printf("ACE가 나왔네요, [1/11]점으로 계산합니다: ");
-    scanf("%d", &ace_score);
-    player->score += ace_score;
-  }
-
-  printf("score : %d\n", player->score);
 
   return;
 }
@@ -191,124 +207,126 @@ void printInfo(struct Player *player)
   printf("보유금: %d\n", player->cash);
 }
 
-// 게임 진행
-void play(struct Player players)
-{
-  int turns = 0;
-  int push = 0;
-  int push_flag = 0;
-  int bet_total = 0;
-
-  while (1)
-  {
-    int winner, winnerscore = -1;
-    int bet[3];
-    bet[0] = 10;
-    push_flag = 0;
-
-    if (push == 0)
-      bet_total = 0;
-
-    for (int i = 0; i < 3; i++)
-    {
-      if (players.cash <= 0)
-      {
-        printf("Player 파산. 100 Coin 다시 충전.\n");
-      }
-      players.cash = 100;
-    }
-
-    for (int i = 0; i < 3; i++)
-    {
-      players.score = 0;
-    }
-
-    player[0].card_player[turns] = deal(next++);
-
-    // deal
-    for (int i = 0; i < 3; i++)
-    {
-      printf("보유 코인: %d\n", players.cash);
-      players.card_player[turns] = deal(next++);
-    }
-
-    // 동점 우승이 한쌍이라도 있으면, 다음 게임으로 배팅 금액을 몰빵
-    for (int i = 0; i < 3; i++)
-    {
-      if (winnerscore < player[i].score)
-      {
-        winner = i;
-        winnerscore = player[i].score;
-      }
-    }
-    printf("prize: ");
-
-    for (int i = 0; i < 3; i++)
-    {
-      if (winnerscore == player[i].score && winner != i)
-      {
-        if (push == 0)
-          push = 1;
-        push_flag = 1;
-      }
-    }
-
-    push *= push_flag;
-
-    if (push == 1)
-    {
-      player[1].cash -= bet[1];
-      player[2].cash -= bet[2];
-      printf("0\n");
-    }
-    else if (winner == 0)
-    {
-      player[1].cash -= bet[1];
-      player[2].cash -= bet[2];
-      push = 0;
-      printf("%d\n", bet_total);
-    }
-    else if (winner == 1)
-    {
-      player[1].cash += bet_total;
-      player[2].cash -= bet[2];
-      push = 0;
-      printf("%d\n", bet_total);
-    }
-    else if (winner == 2)
-    {
-      player[1].cash -= bet[1];
-      player[2].cash += bet_total;
-      push = 0;
-      printf("%d\n", bet_total);
-    }
-
-    printf("\n결과>> P1 CASH : %d / P2 CASH : %d\n", player[1].cash, player[2].cash);
-
-    char answer;
-    printf("계속하시겠습니까? ");
-    scanf(" %c", &answer);
-
-    if (answer == 'y' || answer == 'Y')
-    {
-      continue;
-    }
-    else
-    {
-      break;
-    }
-  }
-
-  printf("게임이 종료됩니다.)");
-}
-
-// 에러 메시지 출력 함수
 void error(const char *msg)
 {
   perror(msg);
   exit(1);
 }
 
+// ===================================================
+
+// 게임 진행
+// void play(struct Player players)
+// {
+//   int turns = 0;
+//   int push = 0;
+//   int push_flag = 0;
+//   int bet_total = 0;
+
+//   while (1)
+//   {
+//     int winner, winnerscore = -1;
+//     int bet[3];
+//     bet[0] = 10;
+//     push_flag = 0;
+
+//     if (push == 0)
+//       bet_total = 0;
+
+//     for (int i = 0; i < 3; i++)
+//     {
+//       if (players.cash <= 0)
+//       {
+//         printf("Player 파산. 100 Coin 다시 충전.\n");
+//       }
+//       players.cash = 100;
+//     }
+
+//     for (int i = 0; i < 3; i++)
+//     {
+//       players.score = 0;
+//     }
+
+//     player[0].card_player[turns] = deal(next++);
+
+//     // deal
+//     for (int i = 0; i < 3; i++)
+//     {
+//       printf("보유 코인: %d\n", players.cash);
+//       players.card_player[turns] = deal(next++);
+//     }
+
+//     // 동점 우승이 한쌍이라도 있으면, 다음 게임으로 배팅 금액을 몰빵
+//     for (int i = 0; i < 3; i++)
+//     {
+//       if (winnerscore < player[i].score)
+//       {
+//         winner = i;
+//         winnerscore = player[i].score;
+//       }
+//     }
+//     printf("prize: ");
+
+//     for (int i = 0; i < 3; i++)
+//     {
+//       if (winnerscore == player[i].score && winner != i)
+//       {
+//         if (push == 0)
+//           push = 1;
+//         push_flag = 1;
+//       }
+//     }
+
+//     push *= push_flag;
+
+//     if (push == 1)
+//     {
+//       player[1].cash -= bet[1];
+//       player[2].cash -= bet[2];
+//       printf("0\n");
+//     }
+//     else if (winner == 0)
+//     {
+//       player[1].cash -= bet[1];
+//       player[2].cash -= bet[2];
+//       push = 0;
+//       printf("%d\n", bet_total);
+//     }
+//     else if (winner == 1)
+//     {
+//       player[1].cash += bet_total;
+//       player[2].cash -= bet[2];
+//       push = 0;
+//       printf("%d\n", bet_total);
+//     }
+//     else if (winner == 2)
+//     {
+//       player[1].cash -= bet[1];
+//       player[2].cash += bet_total;
+//       push = 0;
+//       printf("%d\n", bet_total);
+//     }
+
+//     printf("\n결과>> P1 CASH : %d / P2 CASH : %d\n", player[1].cash, player[2].cash);
+
+//     char answer;
+//     printf("계속하시겠습니까? ");
+//     scanf(" %c", &answer);
+
+//     if (answer == 'y' || answer == 'Y')
+//     {
+//       continue;
+//     }
+//     else
+//     {
+//       break;
+//     }
+//   }
+
+//   printf("게임이 종료됩니다.)");
+// }
+
+// 에러 메시지 출력 함수
 // 배팅하는 함수, 베팅 금액이 너무 클 경우 다시 입력 받음
 // int betting(struct Player player, int bet)
 // {
@@ -347,21 +365,21 @@ void error(const char *msg)
 // }
 
 // 딜러는 지능적으로 16까지만 안전하게 여기고 hit, 딜러 알고리즘, 서버
-void dealer(struct Player *player, int turn)
-{
-  printf("\n+딜러 차례입니다.+\n\n");
-  while (player->score < 21)
-  {
-    if (player->score < AI)
-    {
-      turn++;
-      player->card_player[turn] = card_all[next++];
-    }
-    else
-    {
-      break;
-    }
-  }
-  if (player->score > 21)
-    player->score = 0;
-}
+// void dealer(struct Player *player, int turn)
+// {
+//   printf("\n+딜러 차례입니다.+\n\n");
+//   while (player->score < 21)
+//   {
+//     if (player->score < AI)
+//     {
+//       turn++;
+//       player->card_player[turn] = card_all[next++];
+//     }
+//     else
+//     {
+//       break;
+//     }
+//   }
+//   if (player->score > 21)
+//     player->score = 0;
+// }

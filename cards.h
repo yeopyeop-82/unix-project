@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <semaphore.h>
 
 #define PORT 12345
 #define HIT 2
@@ -22,17 +23,32 @@
 #define HEART "♥"
 #define MAX_CLI 1
 
-enum shape { spade, club, dia, heart };
-enum num { ace = 1, jack = 11, queen = 12, king = 13 };
+enum shape
+{
+    spade,
+    club,
+    dia,
+    heart
+};
+enum num
+{
+    ace = 1,
+    jack = 11,
+    queen = 12,
+    king = 13
+};
 
-struct Card {
+struct Card
+{
     int number;
     int shape;
 };
 
-struct Player {
+struct Player
+{
     int cash;
     int score;
+    int bet;
     struct Card card_player[21];
 };
 
