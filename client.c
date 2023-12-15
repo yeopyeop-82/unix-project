@@ -15,7 +15,7 @@ int main()
     struct Player player, dealer;
     // 플레이어와 딜러의 정보를 저장하는 구조체 변수 player와 dealer 선언
 
-    char choice, matchResult, buffer[256];
+    char kk = 'c', choice, matchResult, buffer[256];
 
     // 클라이언트 소켓 생성
     clie_sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -48,17 +48,25 @@ int main()
         exit(1);
     }
     printf("< ROUND %d >\n", roundCount);
+
+    // ROUND ============================================================
     while (1)
     {
+
         // 딜러 정보 초기화
         reset(&dealer);
+        reset(&player);
 
+        sleep(1);
         // 서버로부터 플레이어 정보 받기
         n = read(clie_sock, &player, sizeof(player));
+
         player.cash = pc;
 
         // 카드 받기
         n = read(clie_sock, &player.card_player, sizeof(player.card_player));
+        printf("card num : %d\n", player.card_player->number);
+
         // 받은 카드 점수 더하기
         if (player.card_player->number == ace)
         {
@@ -98,8 +106,9 @@ int main()
             if (choice == 'h' || choice == 'H')
             {
                 // 서버에 h 요청
-                // n = write(clie_sock, &choice, sizeof(choice));
-                sendChar(clie_sock, n, choice); // 서버에서 카드 받아오기
+                n = write(clie_sock, &choice, sizeof(choice));
+
+                // 서버에서 카드 받아오기
                 n = read(clie_sock, &player.card_player, sizeof(player.card_player));
                 // 받은 카드 점수 더하기
                 if (player.card_player->number == ace)
@@ -204,8 +213,19 @@ int main()
                 break;
             }
         }
+
         while (1)
         {
+            if (kk == 'b')
+            {
+                player.cash += player.bet;
+                pc = player.cash;
+                player.bet = 0;
+                printInfo(&player);
+                kk = 'c';
+                break; // while loop 탈출.
+            }
+
             // 베팅금액 정산
             player.cash += player.bet;
             pc = player.cash;
@@ -219,9 +239,14 @@ int main()
 
                 if (choice == 'y' || choice == 'Y')
                 {
+                    kk = 'b';
+                    printf("\n\n딜러 화장실 갔다 오는 중..");
                     roundCount++;
-                    printf("\n\n\n< ROUND %d >\n", roundCount);
+                    printf("\n< ROUND %d >\n", roundCount);
                     n = write(clie_sock, &choice, sizeof(choice));
+                    sleep(1);
+
+                    break;
                 }
                 else if (choice == 'n' || choice == 'N')
                 {
@@ -231,6 +256,16 @@ int main()
                     close(clie_sock);
                     return 0;
                 }
+            }
+            else
+            {
+                // 올인치고 다 잃은 경우는 자동 탈락
+                choice = 'n';
+                n = write(clie_sock, &choice, sizeof(choice));
+                printf("게임 종료.\n");
+                // 소켓 닫기
+                close(clie_sock);
+                return 0;
             }
         }
     }

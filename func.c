@@ -83,17 +83,6 @@ struct Card deal(int next)
   return card_all[next];
 }
 
-// 플레이어 리스트, 카드 순서 받아서 한명씩 카드 배분 함수, 서버
-void deal_players(struct Player players, int turns)
-{
-  // deal
-  for (int i = 0; i < 3; i++)
-  {
-    printf("\n<Player 보유 금액: %d>", players.cash);
-    players.card_player[turns] = deal(next++);
-  }
-}
-
 // 플레이어 리스트, bet size 리스트를 인자로 받음, 서버
 int bet_players(struct Player players, int betsize)
 {
@@ -214,42 +203,6 @@ void printInfo(struct Player *player)
 {
   printf("┌────────────┐\n플레이어 정보\n");
   printf("보유금: %d\n└────────────┘\n", player->cash);
-}
-void sendCard(int clie_sock, int n, struct Card card)
-{
-  n = write(clie_sock, &card, sizeof(card));
-  if (n < 0)
-  {
-    perror("write");
-    exit(1);
-  }
-}
-void recvCard(int clie_sock, int n, struct Card card)
-{
-  n = read(clie_sock, &card, sizeof(card));
-  if (n < 0)
-  {
-    perror("read");
-    exit(1);
-  }
-}
-void sendChar(int clie_sock, int n, char choice)
-{
-  n = write(clie_sock, &choice, sizeof(choice));
-  if (n < 0)
-  {
-    perror("write");
-    exit(1);
-  }
-}
-void recvChar(int clie_sock, int n, char choice)
-{
-  n = read(clie_sock, &choice, sizeof(choice));
-  if (n < 0)
-  {
-    perror("read");
-    exit(1);
-  }
 }
 
 void error(const char *msg)
