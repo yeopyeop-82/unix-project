@@ -45,14 +45,15 @@ int main()
     client_len = sizeof(client_addr);
     // 클라이언트 연결 수락 및 플레이어 데이터 초기화
     clie_sock = accept(serv_sock, (struct sockaddr *)&client_addr, &client_len);
-    // 플레이어 데이터 초기화
 
     while (1) // whileA
     {
         // 게임 시작 지점 -- Round 가 다시 시작되면 여기로 !!
         while (1) // whileB
         {
+            // 라운드 알림
             printf("< ROUND %d >\n", roundCount);
+            // 풀레이어 점수 초기화
             players.score = 0;
 
             // 카드 덱 생성
@@ -64,9 +65,20 @@ int main()
 
             // client_sockets[i]에 해당하는 클라이언트로 값을 보냄
             n = write(clie_sock, &players, sizeof(players));
+            if (n < 0)
+            {
+                perror("write");
+                exit(1);
+            }
 
             // 카드 정보 송신
             n = write(clie_sock, &card_all[turn], sizeof(card_all[turn]));
+            if (n < 0)
+            {
+                perror("write");
+                exit(1);
+            }
+
             // 서버측에서 갖고 있는 플레이어 점수 정보에 첫 카드의 점수 더하기
             // ACE카드는 뽑은 시점의 플레이어 점수가 10점 이하인 경우 11점으로 간주,
             // 10점 초과인 경우 1점으로 간주함
@@ -99,12 +111,23 @@ int main()
             {
                 // 클라이언트의 선택 받아오기
                 n = read(clie_sock, &choice, sizeof(choice));
+                if (n < 0)
+                {
+                    perror("read");
+                    exit(1);
+                }
 
                 // 클라이언트의 선택이 HIT이라면
                 if (choice == 'h' || choice == 'H')
                 {
                     // 카드 정보 송신
                     n = write(clie_sock, &card_all[turn], sizeof(card_all[turn]));
+                    if (n < 0)
+                    {
+                        perror("write");
+                        exit(1);
+                    }
+
                     // ACE 점수 처리
                     if (card_all[turn].number == ace)
                     {
@@ -144,6 +167,12 @@ int main()
                 {
                     // 클라이언트측에서 계산한 클라이언트 측의 총 점수를 받아옴
                     n = read(clie_sock, &players.score, sizeof(players.score));
+                    if (n < 0)
+                    {
+                        perror("read");
+                        exit(1);
+                    }
+
                     // 딜러 차례
                     while (1) // while D
                     {
@@ -182,14 +211,19 @@ int main()
                             turn++;
                             // 클라이언트에 h 알림
                             n = write(clie_sock, &choice, sizeof(choice));
+                            if (n < 0)
+                            {
+                                perror("write");
+                                exit(1);
+                            }
 
                             // 클라이언트에 딜러가 뽑은 카드 알림
                             n = write(clie_sock, &servDealer.card_player, sizeof(servDealer.card_player));
-                        }
-                        else if (servDealer.score <= 21 && servDealer.score > players.score)
-                        {
-                            // 딜러의 승리 조건을 딜러의 점수를 계산한 후에 비교
-                            break; // whileD 탈출
+                            if (n < 0)
+                            {
+                                perror("write");
+                                exit(1);
+                            }
                         }
                         else
                         {
@@ -205,14 +239,7 @@ int main()
                 }
                 else if (choice == 'n' || choice == 'N')
                 {
-                    if ((players.score > servDealer.score && players.score < 21) || players.score == 21 || players.score == servDealer.score)
-                    {
-                        printf("플레이어 승리!\n");
-                    }
-                    else
-                    {
-                        printf("플레이어 패배!\n");
-                    }
+
                     printf("게임 종료\n");
                     // 연결된 클라이언트 소켓을 닫는 반복문
                     close(clie_sock);
@@ -225,12 +252,10 @@ int main()
         } // whileB
         if ((players.score > servDealer.score && players.score < 21) || players.score == 21 || players.score == servDealer.score)
         {
-            printf("플레이어 승리!\n");
             break;
         }
         else
         {
-            printf("플레이어 패배!\n");
             break;
         }
     } // whileA
