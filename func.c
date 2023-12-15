@@ -215,6 +215,42 @@ void printInfo(struct Player *player)
   printf("┌────────────┐\n플레이어 정보\n");
   printf("보유금: %d\n└────────────┘\n", player->cash);
 }
+void sendCard(int clie_sock, int n, struct Card card)
+{
+  n = write(clie_sock, &card, sizeof(card));
+  if (n < 0)
+  {
+    perror("write");
+    exit(1);
+  }
+}
+void recvCard(int clie_sock, int n, struct Card card)
+{
+  n = read(clie_sock, &card, sizeof(card));
+  if (n < 0)
+  {
+    perror("read");
+    exit(1);
+  }
+}
+void sendChar(int clie_sock, int n, char choice)
+{
+  n = write(clie_sock, &choice, sizeof(choice));
+  if (n < 0)
+  {
+    perror("write");
+    exit(1);
+  }
+}
+void recvChar(int clie_sock, int n, char choice)
+{
+  n = read(clie_sock, &choice, sizeof(choice));
+  if (n < 0)
+  {
+    perror("read");
+    exit(1);
+  }
+}
 
 void error(const char *msg)
 {

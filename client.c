@@ -98,8 +98,8 @@ int main()
             if (choice == 'h' || choice == 'H')
             {
                 // 서버에 h 요청
-                n = write(clie_sock, &choice, sizeof(choice));
-                // 서버에서 카드 받아오기
+                // n = write(clie_sock, &choice, sizeof(choice));
+                sendChar(clie_sock, n, choice); // 서버에서 카드 받아오기
                 n = read(clie_sock, &player.card_player, sizeof(player.card_player));
                 // 받은 카드 점수 더하기
                 if (player.card_player->number == ace)
@@ -225,13 +225,12 @@ int main()
                 }
                 else if (choice == 'n' || choice == 'N')
                 {
-                    printf("또 이용해 주세요!\n");
-                    break;
+                    n = write(clie_sock, &choice, sizeof(choice));
+                    printf("게임 종료.\n");
+                    // 소켓 닫기
+                    close(clie_sock);
+                    return 0;
                 }
-            }
-            else
-            {
-                break;
             }
         }
     }

@@ -46,10 +46,9 @@ int main()
     // 클라이언트 연결 수락 및 플레이어 데이터 초기화
     clie_sock = accept(serv_sock, (struct sockaddr *)&client_addr, &client_len);
     // 플레이어 데이터 초기화
-    printf("< ROUND %d >\n", roundCount);
     while (1)
     {
-        roundCount++;
+        printf("< ROUND %d >\n", roundCount);
         reset(&players);
 
         // 카드 덱 생성
@@ -94,7 +93,8 @@ int main()
         while (1)
         {
             // 클라이언트의 선택 받아오기
-            n = read(clie_sock, &choice, sizeof(choice));
+            recvChar(clie_sock, n, choice);
+            printf("< ROUND %d >\n", roundCount);
 
             // 클라이언트의 선택이 HIT이라면
             if (choice == 'h' || choice == 'H')
@@ -136,7 +136,7 @@ int main()
                 }
             }
             // 클라이언트가 stay한 경우
-            else
+            else if (choice == 's' || choice == 'S')
             {
                 // 클라이언트측에서 계산한 클라이언트 측의 총 점수를 받아옴
                 n = read(clie_sock, &players.score, sizeof(players.score));
@@ -178,7 +178,7 @@ int main()
                         printf("Dealer Score: %d\n", servDealer.score);
                         turn++;
                         // 클라이언트에 h 알림
-                        n = write(clie_sock, &choice, sizeof(choice));
+                        sendChar(clie_sock, n, choice);
 
                         // 클라이언트에 딜러가 뽑은 카드 알림
                         n = write(clie_sock, &servDealer.card_player, sizeof(servDealer.card_player));
@@ -197,20 +197,34 @@ int main()
                 } // while
                 break;
             }
-        } // while
-
-        while (1)
-        {
-            n = read(clie_sock, &choice, sizeof(choice));
-            if (choice == 'y' || choice == 'Y')
+            else if (choice == 'y' || choice == 'Y')
             {
-                printf("< ROUND %d >\n", roundCount);
-            }
-            else
-            {
+                roundCount++;
                 break;
             }
-        }
+            else if (choice == 'n' || choice == 'N')
+            {
+                printf("게임 종료\n");
+                // 연결된 클라이언트 소켓을 닫는 반복문
+                close(clie_sock);
+                // 서버 소켓 닫음
+                close(serv_sock);
+                return 0;
+            }
+        } // while
+
+        // while (1)
+        // {
+        //     n = read(clie_sock, &choice, sizeof(choice));
+        //     if (choice == 'y' || choice == 'Y')
+        //     {
+        //         roundCount++;
+        //     }
+        //     else
+        //     {
+        //         break;
+        //     }
+        // }
     } // while
 
     printf("게임 종료\n");
